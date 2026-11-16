@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipes</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="bg-black text-white">
+    <h1 class="text-center mt-6 mb-2 text-3xl font-semibold">Recipes</h1>
+    <div
+      id="displayBox"
+      class="m-5 bg-blue-300 block w-xxl p-6 border border-2 rounded-base"
+    >
+      <div id="recipesBox">
+        
+      </div>
+    </div>
+    <h1 class="text-center mt-6 mb-2 text-3xl font-semibold">Favourites</h1>
+    
+
+    <div id="favBox" class="">
+      <table class="m-3 w-sm p-6 bg-lime-300">
+        <thead>
+          <tr>
+            <th class="text-black border border-2 border-white p-3">Name</th>
+            <th class="text-black border border-2 border-white p-3">cuisine</th>
+            <th class="text-black border border-2 border-white p-3">Action</th>
+          </tr>
+        </thead>
+        <tbody id="result">
+        </tbody>
+      </table>
+      
+    </div>
+  </body>
+  <script>
+    let apiRes = [];
+    let favourites = JSON.parse(localStorage.getItem("recipeData")) || [];
+    const getData = async () => {
+      try {
+        apiRes = await fetch(
+          "https://dummyjson.com/recipes",
+        );
+        apiRes = await apiRes.json();
+        console.log(apiRes);
+        apiRes.recipes.map((eachData, index)=>(
+            document.querySelector('#recipesBox').innerHTML+=`
+            <img class="w-[40vh] mx-120 mt-5" src= ${eachData.image} alt="" />
+            <h3 id="name" class="text-black text-center mt-6 mb-2 text-2xl font-semibold">
+          ${eachData.name}
+        </h3>
+        <h5 id="ingredients" class="text-black text-1xl mt-6 mb-2">${eachData.ingredients}</h5>
+        <p id="instructions" class="text-black text-sm mt-6 mb-2">${eachData.instructions}</p>
+        <button onclick="addTofav()" class="border border-2 border-black rounded bg-green-400 p-3 mb-3 mt-2">Add to Fav</button>
+        <hr>`
+    
+        ))
+      } catch (error) {
+        console.log(error);
+        alert("error occured");
+      }
+    };
+    getData();
+    const addTofav = (eachData) => {
+      favourites.unshift(apiRes.recipes);
+      let jsonData = JSON.stringify(favourites);
+      localStorage.setItem("recipeData", jsonData);
+      showFavourites();
+      alert("added to favourites");
+    };
+    const showFavourites = () => {
+      favourites = JSON.parse(localStorage.getItem("recipeData")) || [];
+      let resultEl = document.querySelector("#result");
+      resultEl.innerHTML = "";
+      favourites.map(
+        (eachData) =>
+          (resultEl.innerHTML += `<tr>
+            <td class="text-black border border-2 border-white p-3">${eachData.name}</td>
+            <td class="text-black border border-2 border-white p-3">${eachData.cuisine}</td>
+            <td class="text-black border border-2 border-white p-3">
+               <button
+                class="bg-yellow-400 border border-2 rounded border-white p-2"
+              >
+                Edit
+              </button> 
+              <button onclick="delData()"
+                class="bg-red-400 border border-2 rounded border-white p-2"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>`))}
+          showFavourites();
+          const delData = (dRecipes) => {
+      favourites = JSON.parse(localStorage.getItem("recipeData"));
+      let filteredData = favourites.filter((eachData) => eachData.id != dRecipes);
+      localStorage.setItem("recipeData", JSON.stringify(filteredData));
+      alert("deleted");
+      showFavourites();
+    };
+  </script>
+</html>
